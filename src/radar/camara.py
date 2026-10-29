@@ -6,7 +6,8 @@ PLENARIO = 180
 TENTATIVAS = 3
 ERROS_TEMPORARIOS = {429, 502, 503, 504}
 
-def _requisitar(url: str, params: dict | None = None) -> dict:
+
+def _requisitar(url: str, params: dict | None = None) -> dict:  # type: ignore
     for tentativa in range(1, TENTATIVAS + 1):
         try:
             resposta = httpx.get(
@@ -38,7 +39,7 @@ def _listar(caminho: str, params: dict) -> list[dict]:
 
         links = corpo["links"]
         url = next((link["href"] for link in links if link["rel"] == "next"), None)
-        params = None # type: ignore
+        params = None  # type: ignore
 
     return itens
 
@@ -70,6 +71,7 @@ def buscar_votos(id_votacao: str) -> list[dict]:
             return []
         raise
     return corpo["dados"]
+
 
 def buscar_proposicao(id_proposicao: int) -> dict | None:
     try:
