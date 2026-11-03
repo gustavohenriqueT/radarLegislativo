@@ -1,8 +1,21 @@
+import psycopg
 from radar import banco, camara
 
 
 def _id_proposicao(id_votacao: str) -> int:
     return int(id_votacao.split("-")[0])
+
+
+def _coletar_autores(conexao: psycopg.Connection) -> None:
+    pendentes = banco.listar_proposicoes_sem_autores(conexao)
+    print(f"{len(pendentes)} proposições sem autores")
+
+    for id_proposicao in pendentes:
+        autores = camara.buscar_autores(id_proposicao)
+        if not autores:
+            continue
+        banco.salvar_autores(conexao, id_proposicao, autores)
+        conexao.commit()
 
 
 def coletar_periodo(data_inicio: str, data_fim: str) -> None:
@@ -30,3 +43,5 @@ def coletar_periodo(data_inicio: str, data_fim: str) -> None:
             banco.salvar_votos(conexao, votacao["id"], votos)
             conexao.commit()
             print(f"{votacao['id']}: {len(votos)} votos")
+
+        _coletar_autores(conexao)

@@ -1,6 +1,6 @@
 import os
-
 import psycopg
+from radar.organizacao import id_deputado_da_uri
 
 DATABASE_URL = os.environ.get(
     "DATABASE_URL", "postgresql://radar:radar@localhost:5432/radar"
@@ -118,4 +118,54 @@ def salvar_proposicao(conexao: psycopg.Connection, proposicao: dict) -> None:
                 url_inteiro_teor = excluded.url_inteiro_teor
             """,
             proposicao,
+        )
+
+
+def listar_proposicoes_sem_autores(conexao: psycopg.Connection) -> list[int]:
+    with conexao.cursor() as cursor:
+        cursor.execute(
+            """
+            select p.id
+            from proposicoes p
+            left join autores a on a.id_proposicao = p.id
+            where a.id_proposicao is null
+            """
+        )
+        return [linha[0] for linha in cursor.fetchall()]
+
+
+def salvar_autores(
+    conexao: psycopg.Connection, id_proposicao: int, autores: list[dict]
+) -> None:
+    linhas = [
+        {
+            "id_proposicao": id_proposicao,
+            "nome": autor["nome"],
+            "tipo": autor.get("tipo"),
+            "id_deputado": id_deputado_da_uri(autor.get("uri")),
+            "ordem_assinatura": autor.get("ordemAssinatura"),
+            "proponente": bool(autor.get("proponente")),
+        }
+        for autor in autores
+    ]
+
+    with conexao.cursor() as cursor:
+        cursor.executemany(
+            """
+            insert into autores (
+                id_proposicao, nome, tipo, id_deputado,
+                ordem_assinatura, proponente
+            )
+            values (
+                %(id_proposicao)s, %(nome)s, %(tipo)s,
+                (select id from deputados where id = %(id_deputado)s),
+                %(ordem_assinatura)s, %(proponente)s
+            )
+            on conflict (id_proposicao, nome) do update set
+                tipo = excluded.tipo,
+                id_deputado = excluded.id_deputado,
+                ordem_assinatura = excluded.ordem_assinatura,
+                proponente = excluded.proponente
+            """,
+            linhas,
         )

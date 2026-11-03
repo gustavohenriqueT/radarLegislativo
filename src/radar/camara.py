@@ -80,3 +80,8 @@ def buscar_votos(id_votacao: str) -> list[dict]:
 def buscar_proposicao(id_proposicao: int) -> dict | None:
     corpo = _requisitar_opcional(f"{BASE_URL}/proposicoes/{id_proposicao}")
     return corpo["dados"] if corpo else None
+
+
+def buscar_autores(id_proposicao: int) -> list[dict]:
+    corpo = _requisitar_opcional(f"{BASE_URL}/proposicoes/{id_proposicao}/autores")
+    return corpo["dados"] if corpo else []

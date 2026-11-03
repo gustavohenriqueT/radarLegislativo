@@ -12,3 +12,9 @@ def agrupar_votos(votos: list[dict]) -> dict[str, list[str]]:
         grupos[tipo].append(nome)
 
     return grupos
+
+
+def id_deputado_da_uri(uri: str | None) -> int | None:
+    if not uri or "/deputados/" not in uri:
+        return None
+    return int(uri.rstrip("/").rsplit("/", 1)[-1])

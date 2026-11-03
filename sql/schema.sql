@@ -32,3 +32,19 @@ create table if not exists votos (
 );
 
 create index if not exists idx_votos_deputado on votos (id_deputado);
+
+create table if not exists autores (
+    id_proposicao integer not null references proposicoes (id),
+    nome text not null,
+    tipo text,
+    id_deputado integer references deputados (id),
+    ordem_assinatura integer,
+    proponente boolean not null default false,
+    primary key (id_proposicao, nome)
+);
+
+create index if not exists idx_autores_deputado on autores (id_deputado);
+
+create index if not exists idx_votacoes_proposicao on votacoes (id_proposicao);
+
+create index if not exists idx_votacoes_data on votacoes (data);
