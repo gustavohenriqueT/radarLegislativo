@@ -29,6 +29,15 @@ def _requisitar(url: str, params: dict | None = None) -> dict:  # type: ignore
         time.sleep(2**tentativa)
 
 
+def _requisitar_opcional(url: str) -> dict | None:
+    try:
+        return _requisitar(url)
+    except httpx.HTTPStatusError as erro:
+        if erro.response.status_code == 404:
+            return None
+        raise
+
+
 def _listar(caminho: str, params: dict) -> list[dict]:
     url = f"{BASE_URL}{caminho}"
     itens = []
@@ -64,20 +73,10 @@ def buscar_votacoes(data_inicio: str, data_fim: str) -> list[dict]:
 
 
 def buscar_votos(id_votacao: str) -> list[dict]:
-    try:
-        corpo = _requisitar(f"{BASE_URL}/votacoes/{id_votacao}/votos")
-    except httpx.HTTPStatusError as erro:
-        if erro.response.status_code == 404:
-            return []
-        raise
-    return corpo["dados"]
+    corpo = _requisitar_opcional(f"{BASE_URL}/votacoes/{id_votacao}/votos")
+    return corpo["dados"] if corpo else []
 
 
 def buscar_proposicao(id_proposicao: int) -> dict | None:
-    try:
-        corpo = _requisitar(f"{BASE_URL}/proposicoes/{id_proposicao}")
-    except httpx.HTTPStatusError as erro:
-        if erro.response.status_code == 404:
-            return None
-        raise
-    return corpo["dados"]
+    corpo = _requisitar_opcional(f"{BASE_URL}/proposicoes/{id_proposicao}")
+    return corpo["dados"] if corpo else None
