@@ -2,7 +2,7 @@
 name = "radar-legislativo"
 version = "0.1.0"
 requires-python = ">=3.11"
-dependencies = ["httpx", "psycopg[binary]"]
+dependencies = ["httpx", "psycopg[binary]", "fastapi", "uvicorn[standard]"]
 
 [project.optional-dependencies]
 dev = ["pytest", "ruff"]
