@@ -1,3 +1,9 @@
 {
-	"rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+	"rewrites": [
+		{
+			"source": "/api/:caminho*",
+			"destination": "https://radar-legislativo-two.vercel.app/:caminho*"
+		},
+		{ "source": "/(.*)", "destination": "/index.html" }
+	]
 }
