@@ -37,3 +37,11 @@ A interface abre em http://localhost:5173 e a documentação da API em http://lo
 - A coleta é idempotente: rodar o mesmo período de novo atualiza os registros sem duplicar.
 - Votações simbólicas não têm voto individual e aparecem sem placar.
 - Requerimentos ficam no banco, mas a lista principal mostra só projetos (PL, PEC, PLP, MPV, PDL e PRC).
+
+## Deploy
+
+- Banco: PostgreSQL no Neon
+- API e interface: dois projetos na Vercel a partir deste repositório (raiz e pasta `web`)
+- Coleta: GitHub Actions a cada 15 minutos no horário das sessões (`.github/workflows/coleta.yml`)
+
+Site: https://radar-legislativo-home.vercel.app
