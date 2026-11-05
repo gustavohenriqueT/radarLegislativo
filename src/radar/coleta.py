@@ -1,5 +1,6 @@
 import psycopg
 from radar import banco, camara
+import httpx
 
 
 def _id_proposicao(id_votacao: str) -> int:
@@ -11,7 +12,12 @@ def _coletar_autores(conexao: psycopg.Connection) -> None:
     print(f"{len(pendentes)} proposições sem autores")
 
     for id_proposicao in pendentes:
-        autores = camara.buscar_autores(id_proposicao)
+        try:
+            autores = camara.buscar_autores(id_proposicao)
+        except (httpx.HTTPStatusError, httpx.TimeoutException):
+            print(f"autores da proposição {id_proposicao} ficam para a próxima coleta")
+            continue
+
         if not autores:
             continue
         banco.salvar_autores(conexao, id_proposicao, autores)
