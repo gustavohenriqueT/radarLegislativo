@@ -1,10 +1,11 @@
 import { type FormEvent, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { type ProposicaoResumo, useDados } from "../api";
 import { Situacao } from "../componentes/Situacao";
 import { data, identificacao, NOMES_TIPOS } from "../formato";
+import { ATUALIZACAO_MS, type ProposicaoResumo, useDados } from "../api";
 
 const POR_PAGINA = 20;
+
 
 export function Inicio() {
 	const [parametros, setParametros] = useSearchParams();
@@ -22,6 +23,7 @@ export function Inicio() {
 	}
 	const { dados, erro, carregando } = useDados<ProposicaoResumo[]>(
 		`/proposicoes?${consulta}`,
+		ATUALIZACAO_MS,
 	);
 
 	function atualizar(novos: Record<string, string>) {

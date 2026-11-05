@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { type Autor, type ProposicaoDetalhe, useDados } from "../api";
 import { Placar } from "../componentes/Placar";
 import { Situacao } from "../componentes/Situacao";
 import { data, identificacao, NOMES_TIPOS, resultado } from "../formato";
+import { ATUALIZACAO_MS, type Autor, type ProposicaoDetalhe, useDados} from "../api";
 
 function NomeDoAutor({ autor }: { autor: Autor }) {
 	const uf = autor.sigla_uf ? ` (${autor.sigla_uf})` : "";
@@ -22,6 +22,7 @@ export function Proposicao() {
 	const { id } = useParams();
 	const { dados, erro, carregando } = useDados<ProposicaoDetalhe>(
 		`/proposicoes/${id}`,
+		ATUALIZACAO_MS,
 	);
 	const [mostrarCoautores, setMostrarCoautores] = useState(false);
 

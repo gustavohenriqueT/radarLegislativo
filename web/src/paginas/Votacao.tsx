@@ -1,13 +1,14 @@
 import { Link, useParams } from "react-router-dom";
-import { useDados, type VotacaoDetalhe } from "../api";
 import { Placar } from "../componentes/Placar";
 import { Situacao } from "../componentes/Situacao";
 import { data, identificacao, resultado } from "../formato";
+import { ATUALIZACAO_MS, type VotacaoDetalhe, useDados } from "../api";
 
 export function Votacao() {
 	const { id } = useParams();
 	const { dados, erro, carregando } = useDados<VotacaoDetalhe>(
 		`/votacoes/${id}`,
+		ATUALIZACAO_MS,
 	);
 
 	if (!dados) {

@@ -1,4 +1,5 @@
 import { NavLink, Route, Routes } from "react-router-dom";
+import { UltimaAtualizacao } from "./componentes/UltimaAtualizacao";
 import { Deputado } from "./paginas/Deputado";
 import { Deputados } from "./paginas/Deputados";
 import { Inicio } from "./paginas/Inicio";
@@ -34,6 +35,7 @@ export function App() {
 			</main>
 
 			<footer className="rodape">
+				<UltimaAtualizacao />
 				<p>
 					Dados da{" "}
 					<a

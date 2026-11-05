@@ -97,6 +97,10 @@ export type ProjetoDeAutoria = {
 	proponente: boolean;
 };
 
+export type Status = {
+	ultima_coleta: string | null;
+};
+
 export type DeputadoDetalhe = DeputadoResumo & {
 	votos: VotoDoDeputado[];
 	autoria: ProjetoDeAutoria[];
@@ -121,7 +125,9 @@ type Estado<T> = {
 	carregando: boolean;
 };
 
-export function useDados<T>(caminho: string): Estado<T> {
+export const ATUALIZACAO_MS = 60_000;
+
+export function useDados<T>(caminho: string, intervaloMs?: number): Estado<T> {
 	const [estado, setEstado] = useState<Estado<T>>({
 		dados: null,
 		erro: null,
@@ -132,23 +138,36 @@ export function useDados<T>(caminho: string): Estado<T> {
 		let ativo = true;
 		setEstado({ dados: null, erro: null, carregando: true });
 
-		buscar<T>(caminho).then(
-			(dados) => {
-				if (ativo) {
-					setEstado({ dados, erro: null, carregando: false });
-				}
-			},
-			(erro: Error) => {
-				if (ativo) {
-					setEstado({ dados: null, erro: erro.message, carregando: false });
-				}
-			},
-		);
+		function carregar(emSegundoPlano: boolean) {
+			buscar<T>(caminho).then(
+				(dados) => {
+					if (ativo) {
+						setEstado({ dados, erro: null, carregando: false });
+					}
+				},
+				(erro: Error) => {
+					if (ativo && !emSegundoPlano) {
+						setEstado({ dados: null, erro: erro.message, carregando: false });
+					}
+				},
+			);
+		}
+
+		carregar(false);
+
+		const relogio = intervaloMs
+			? setInterval(() => {
+					if (document.visibilityState === "visible") {
+						carregar(true);
+					}
+				}, intervaloMs)
+			: undefined;
 
 		return () => {
 			ativo = false;
+			clearInterval(relogio);
 		};
-	}, [caminho]);
+	}, [caminho, intervaloMs]);
 
 	return estado;
 }
