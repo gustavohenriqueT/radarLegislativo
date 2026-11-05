@@ -186,3 +186,9 @@ def detalhar_deputado(conexao: psycopg.Connection, id_deputado: int) -> dict | N
         deputado["autoria"] = cursor.fetchall()
 
     return deputado
+
+
+def ultima_coleta(conexao: psycopg.Connection) -> dict:
+    with conexao.cursor() as cursor:
+        cursor.execute("select max(executada_em) as ultima_coleta from coletas")
+        return cursor.fetchone()

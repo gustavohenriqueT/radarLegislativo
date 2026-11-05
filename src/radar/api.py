@@ -21,7 +21,9 @@ app.add_middleware(
 
 
 def obter_conexao() -> Iterator[psycopg.Connection]:
-    with psycopg.connect(DATABASE_URL, row_factory=dict_row) as conexao:
+    with psycopg.connect(
+        DATABASE_URL, row_factory=dict_row, prepare_threshold=None
+    ) as conexao:
         yield conexao
 
 
@@ -68,3 +70,8 @@ def detalhar_deputado(conexao: Conexao, id_deputado: int) -> dict:
     if deputado is None:
         raise HTTPException(status_code=404, detail="Deputado não encontrado")
     return deputado
+
+
+@app.get("/status")
+def status(conexao: Conexao) -> dict:
+    return consultas.ultima_coleta(conexao)

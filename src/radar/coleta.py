@@ -45,3 +45,5 @@ def coletar_periodo(data_inicio: str, data_fim: str) -> None:
             print(f"{votacao['id']}: {len(votos)} votos")
 
         _coletar_autores(conexao)
+        banco.registrar_coleta(conexao, data_inicio, data_fim, len(votacoes))
+        conexao.commit()

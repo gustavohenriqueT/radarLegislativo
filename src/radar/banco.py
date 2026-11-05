@@ -8,7 +8,7 @@ DATABASE_URL = os.environ.get(
 
 
 def conectar() -> psycopg.Connection:
-    return psycopg.connect(DATABASE_URL)
+    return psycopg.connect(DATABASE_URL, prepare_threshold=None)
 
 
 def salvar_deputados(conexao: psycopg.Connection, deputados: list[dict]) -> None:
@@ -168,4 +168,17 @@ def salvar_autores(
                 proponente = excluded.proponente
             """,
             linhas,
+        )
+
+
+def registrar_coleta(
+    conexao: psycopg.Connection, inicio: str, fim: str, total_votacoes: int
+) -> None:
+    with conexao.cursor() as cursor:
+        cursor.execute(
+            """
+            insert into coletas (inicio, fim, total_votacoes)
+            values (%s, %s, %s)
+            """,
+            (inicio, fim, total_votacoes),
         )

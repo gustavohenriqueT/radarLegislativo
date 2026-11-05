@@ -48,3 +48,11 @@ create index if not exists idx_autores_deputado on autores (id_deputado);
 create index if not exists idx_votacoes_proposicao on votacoes (id_proposicao);
 
 create index if not exists idx_votacoes_data on votacoes (data);
+
+create table if not exists coletas (
+    id serial primary key,
+    executada_em timestamptz not null default now(),
+    inicio date not null,
+    fim date not null,
+    total_votacoes integer not null
+);
