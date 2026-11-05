@@ -48,6 +48,13 @@ def detalhar_proposicao(conexao: Conexao, id_proposicao: int) -> dict:
     return proposicao
 
 
+@app.get("/votacoes")
+def listar_votacoes_recentes(
+    conexao: Conexao, limite: Annotated[int, Query(ge=1, le=50)] = 5
+) -> list[dict]:
+    return consultas.listar_votacoes_recentes(conexao, limite)
+
+
 @app.get("/votacoes/{id_votacao}")
 def detalhar_votacao(conexao: Conexao, id_votacao: str) -> dict:
     votacao = consultas.detalhar_votacao(conexao, id_votacao)

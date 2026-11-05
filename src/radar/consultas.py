@@ -192,3 +192,26 @@ def ultima_coleta(conexao: psycopg.Connection) -> dict:
     with conexao.cursor() as cursor:
         cursor.execute("select max(executada_em) as ultima_coleta from coletas")
         return cursor.fetchone()
+
+
+def listar_votacoes_recentes(conexao: psycopg.Connection, limite: int) -> list[dict]:
+    with conexao.cursor() as cursor:
+        cursor.execute(
+            """
+            select
+                v.id, v.data, v.descricao, v.aprovacao,
+                p.id as id_proposicao, p.sigla_tipo, p.numero, p.ano, p.ementa,
+                count(*) filter (where vt.tipo_voto = 'Sim') as sim,
+                count(*) filter (where vt.tipo_voto = 'Não') as nao,
+                count(*) filter (where vt.tipo_voto = 'Abstenção') as abstencao,
+                count(*) as total
+            from votacoes v
+            join votos vt on vt.id_votacao = v.id
+            left join proposicoes p on p.id = v.id_proposicao
+            group by v.id, p.id
+            order by v.data desc, split_part(v.id, '-', 2)::int desc
+            limit %s
+            """,
+            (limite,),
+        )
+        return cursor.fetchall()
