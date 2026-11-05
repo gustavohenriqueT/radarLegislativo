@@ -7,6 +7,18 @@ export const NOMES_TIPOS: Record<string, string> = {
 	PRC: "Projeto de Resolução",
 };
 
+export const TIPOS_DE_VOTO = [
+	{ tipo: "Sim", chave: "sim" },
+	{ tipo: "Não", chave: "nao" },
+	{ tipo: "Abstenção", chave: "abstencao" },
+	{ tipo: "Obstrução", chave: "obstrucao" },
+	{ tipo: "Artigo 17", chave: "presidente" },
+];
+
+export function chaveDoVoto(tipo: string) {
+	return TIPOS_DE_VOTO.find((voto) => voto.tipo === tipo)?.chave ?? "outros";
+}
+
 export function identificacao(
 	sigla: string | null,
 	numero: number | null,
@@ -34,4 +46,21 @@ export function resultado(aprovacao: boolean | null) {
 		return "Rejeitada";
 	}
 	return null;
+}
+
+const numeros = new Intl.NumberFormat("pt-BR");
+
+export function numero(valor: number) {
+	return numeros.format(valor);
+}
+
+export function plural(quantidade: number, singular: string, varios: string) {
+	return `${numero(quantidade)} ${quantidade === 1 ? singular : varios}`;
+}
+
+export function semAcento(texto: string) {
+	return texto
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.toLowerCase();
 }

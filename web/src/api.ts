@@ -2,6 +2,15 @@ import { useEffect, useState } from "react";
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
+export const ATUALIZACAO_MS = 60_000;
+
+export type Contagem = {
+	sim: number;
+	nao: number;
+	abstencao: number;
+	total: number;
+};
+
 export type ProposicaoResumo = {
 	id: number;
 	sigla_tipo: string;
@@ -12,6 +21,18 @@ export type ProposicaoResumo = {
 	ultima_votacao: string;
 };
 
+export type VotacaoRecente = Contagem & {
+	id: string;
+	data: string;
+	descricao: string | null;
+	aprovacao: boolean | null;
+	id_proposicao: number | null;
+	sigla_tipo: string | null;
+	numero: number | null;
+	ano: number | null;
+	ementa: string | null;
+};
+
 export type Autor = {
 	nome: string;
 	tipo: string | null;
@@ -20,15 +41,11 @@ export type Autor = {
 	sigla_uf: string | null;
 };
 
-export type VotacaoResumo = {
+export type VotacaoResumo = Contagem & {
 	id: string;
 	data: string;
 	descricao: string | null;
 	aprovacao: boolean | null;
-	sim: number;
-	nao: number;
-	abstencao: number;
-	total: number;
 };
 
 export type ProposicaoDetalhe = {
@@ -97,26 +114,39 @@ export type ProjetoDeAutoria = {
 	proponente: boolean;
 };
 
-export type Status = {
-	ultima_coleta: string | null;
-};
-
 export type DeputadoDetalhe = DeputadoResumo & {
 	votos: VotoDoDeputado[];
 	autoria: ProjetoDeAutoria[];
 };
 
+export type Status = {
+	ultima_coleta: string | null;
+};
+
 async function buscar<T>(caminho: string): Promise<T> {
-	const resposta = await fetch(`${BASE_URL}${caminho}`);
+	let resposta: Response;
+	try {
+		resposta = await fetch(`${BASE_URL}${caminho}`);
+	} catch {
+		throw new Error(
+			"Não foi possível conectar ao servidor. Confira sua internet e tente de novo.",
+		);
+	}
 	if (resposta.status === 404) {
-		throw new Error("Registro não encontrado.");
+		throw new Error("Esse registro não existe ou ainda não foi coletado.");
 	}
 	if (!resposta.ok) {
 		throw new Error(
-			"Não foi possível carregar os dados. Confira se a API está rodando.",
+			"O servidor não conseguiu responder agora. Tente de novo em alguns instantes.",
 		);
 	}
-	return resposta.json() as Promise<T>;
+	try {
+		return (await resposta.json()) as T;
+	} catch {
+		throw new Error(
+			"O servidor respondeu num formato inesperado. Tente de novo em alguns instantes.",
+		);
+	}
 }
 
 type Estado<T> = {
@@ -124,8 +154,6 @@ type Estado<T> = {
 	erro: string | null;
 	carregando: boolean;
 };
-
-export const ATUALIZACAO_MS = 60_000;
 
 export function useDados<T>(caminho: string, intervaloMs?: number): Estado<T> {
 	const [estado, setEstado] = useState<Estado<T>>({
@@ -136,7 +164,7 @@ export function useDados<T>(caminho: string, intervaloMs?: number): Estado<T> {
 
 	useEffect(() => {
 		let ativo = true;
-		setEstado({ dados: null, erro: null, carregando: true });
+		setEstado((anterior) => ({ ...anterior, erro: null, carregando: true }));
 
 		function carregar(emSegundoPlano: boolean) {
 			buscar<T>(caminho).then(
@@ -170,4 +198,23 @@ export function useDados<T>(caminho: string, intervaloMs?: number): Estado<T> {
 	}, [caminho, intervaloMs]);
 
 	return estado;
+}
+
+export function useAtrasado<T>(valor: T, atrasoMs = 300): T {
+	const [atrasado, setAtrasado] = useState(valor);
+
+	useEffect(() => {
+		const espera = setTimeout(() => setAtrasado(valor), atrasoMs);
+		return () => clearTimeout(espera);
+	}, [valor, atrasoMs]);
+
+	return atrasado;
+}
+
+export function useTitulo(titulo: string | null) {
+	useEffect(() => {
+		document.title = titulo
+			? `${titulo} | Radar Legislativo`
+			: "Radar Legislativo";
+	}, [titulo]);
 }

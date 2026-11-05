@@ -13,5 +13,10 @@ export function UltimaAtualizacao() {
 		timeStyle: "short",
 	});
 
-	return <p>Dados atualizados em {momento}.</p>;
+	return (
+		<p className="atualizacao">
+			<span className="atualizacao-ponto" aria-hidden="true" />
+			Dados atualizados em {momento}
+		</p>
+	);
 }
