@@ -1,0 +1,26 @@
+name: Coleta de votações
+
+on:
+    schedule:
+        - cron: "*/15 12-23 * * 1-5"
+        - cron: "*/15 0-1 * * 2-6"
+        - cron: "0 10 * * *"
+    workflow_dispatch:
+
+concurrency:
+    group: coleta
+    cancel-in-progress: false
+
+jobs:
+    coletar:
+        runs-on: ubuntu-latest
+        timeout-minutes: 20
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+            - run: pip install .
+            - run: python -m radar --recentes
+              env:
+                  DATABASE_URL: ${{ secrets.DATABASE_URL }}
