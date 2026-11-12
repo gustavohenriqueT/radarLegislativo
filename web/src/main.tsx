@@ -9,6 +9,7 @@ import { NaoEncontrada } from "./paginas/NaoEncontrada";
 import { Proposicao } from "./paginas/Proposicao";
 import { Votacao } from "./paginas/Votacao";
 import "./estilo.css";
+import { Comparacao } from "./paginas/Comparacao";
 
 const rotas = createBrowserRouter([
 	{
@@ -20,6 +21,7 @@ const rotas = createBrowserRouter([
 			{ path: "/deputados", element: <Deputados /> },
 			{ path: "/deputados/:id", element: <Deputado /> },
 			{ path: "*", element: <NaoEncontrada /> },
+			{ path: "/comparar", element: <Comparacao /> },
 		],
 	},
 ]);

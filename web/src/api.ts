@@ -41,11 +41,39 @@ export type Autor = {
 	sigla_uf: string | null;
 };
 
+export type Termo = {
+	termo: string;
+	explicacao: string;
+};
+
+export type Quorum = {
+	votos: number;
+	regra: string;
+};
+
+export type Fatos = {
+	sim: number;
+	nao: number;
+	total: number;
+	diferenca: number;
+	sem_registro: number;
+	cadeiras: number;
+};
+
+export type VotosDoPartido = {
+	partido: string;
+	sim: number;
+	nao: number;
+	abstencao: number;
+	total: number;
+};
+
 export type VotacaoResumo = Contagem & {
 	id: string;
 	data: string;
 	descricao: string | null;
 	aprovacao: boolean | null;
+	glossario: Termo[];
 };
 
 export type ProposicaoDetalhe = {
@@ -84,6 +112,10 @@ export type VotacaoDetalhe = {
 	ano: number | null;
 	ementa: string | null;
 	grupos: GrupoDeVotos[];
+	fatos: Fatos;
+	quorum: Quorum | null;
+	glossario: Termo[];
+	partidos: VotosDoPartido[];
 };
 
 export type DeputadoResumo = {
@@ -117,6 +149,37 @@ export type ProjetoDeAutoria = {
 export type DeputadoDetalhe = DeputadoResumo & {
 	votos: VotoDoDeputado[];
 	autoria: ProjetoDeAutoria[];
+};
+
+export type DeputadoComparado = {
+	id: number;
+	nome: string;
+	sigla_uf: string | null;
+	sigla_partido: string | null;
+	voto_a: string | null;
+	voto_b: string | null;
+};
+
+export type VotacaoComparada = {
+	id: string;
+	data: string;
+	descricao: string | null;
+	aprovacao: boolean | null;
+	id_proposicao: number | null;
+	sigla_tipo: string | null;
+	numero: number | null;
+	ano: number | null;
+};
+
+export type Comparacao = {
+	primeira: VotacaoComparada;
+	segunda: VotacaoComparada;
+	grupos: {
+		diferentes: DeputadoComparado[];
+		iguais: DeputadoComparado[];
+		so_primeira: DeputadoComparado[];
+		so_segunda: DeputadoComparado[];
+	};
 };
 
 export type Status = {

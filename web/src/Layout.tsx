@@ -8,7 +8,7 @@ import { UltimaAtualizacao } from "./componentes/UltimaAtualizacao";
 
 export function Layout() {
 	const { pathname } = useLocation();
-	const emProjetos = /^\/(proposicoes|votacoes)\//.test(pathname);
+	const emProjetos = /^\/(proposicoes|votacoes|comparar)/.test(pathname);
 
 	return (
 		<>

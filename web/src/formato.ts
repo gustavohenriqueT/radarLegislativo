@@ -19,6 +19,13 @@ export function chaveDoVoto(tipo: string) {
 	return TIPOS_DE_VOTO.find((voto) => voto.tipo === tipo)?.chave ?? "outros";
 }
 
+export function rotuloDoVoto(tipo: string | null) {
+	if (!tipo) {
+		return null;
+	}
+	return tipo === "Artigo 17" ? "Presidindo a sessão" : tipo;
+}
+
 export function identificacao(
 	sigla: string | null,
 	numero: number | null,

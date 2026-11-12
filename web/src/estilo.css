@@ -559,7 +559,7 @@ button:disabled {
 	stroke-width: 0;
 	transform-box: fill-box;
 	transform-origin: center;
-	transition: opacity 0.25s;
+		transition: opacity 0.25s, fill 0.5s var(--saida);
 }
 
 .voto-presidente.assento,
@@ -734,6 +734,284 @@ button:disabled {
 	color: var(--tinta);
 }
 
+/* Entenda */
+
+.entenda {
+	max-width: var(--leitura);
+	margin-top: 2.5rem;
+	padding: 1.25rem 1.5rem;
+	background: var(--superficie);
+	border: 1px solid var(--linha);
+	border-radius: calc(var(--raio) * 1.5);
+}
+
+.entenda h2 {
+	margin-bottom: 0.75rem;
+	font-size: 1.0625rem;
+}
+
+.entenda > p + p,
+.entenda > .regua + p {
+	margin-top: 0.75rem;
+}
+
+.regua {
+	position: relative;
+	margin-top: 1rem;
+	padding-bottom: 1.6rem;
+}
+
+.regua-trilho {
+	position: relative;
+	height: 0.75rem;
+	border-radius: 999px;
+	background: var(--linha);
+}
+
+.regua-preenchido {
+	display: block;
+	height: 100%;
+	border-radius: 999px;
+	background: var(--cor);
+}
+
+.regua-marca {
+	position: absolute;
+	top: -0.3rem;
+	bottom: -0.3rem;
+	width: 2px;
+	background: var(--tinta);
+}
+
+.regua-rotulo {
+	position: absolute;
+	bottom: 0;
+	transform: translateX(-50%);
+	font-size: 0.8125rem;
+	color: var(--tinta-suave);
+	white-space: nowrap;
+}
+
+.glossario {
+	margin-top: 0.75rem;
+	font-size: 0.9375rem;
+}
+
+.glossario summary {
+	width: fit-content;
+	color: var(--acento);
+	cursor: pointer;
+}
+
+.glossario dl {
+	display: grid;
+	gap: 0.75rem;
+	margin: 0.75rem 0 0;
+	padding-left: 1rem;
+	border-left: 2px solid var(--linha);
+}
+
+.glossario dt {
+	font-weight: 700;
+}
+
+.glossario dd {
+	margin: 0;
+	color: var(--tinta-suave);
+}
+
+.tabela-rolagem {
+	max-width: 52rem;
+	margin-top: 1rem;
+	overflow-x: auto;
+}
+
+.partidos {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.9375rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.partidos th,
+.partidos td {
+	padding: 0.55rem 0.75rem 0.55rem 0;
+	border-bottom: 1px solid var(--linha);
+	text-align: right;
+	white-space: nowrap;
+}
+
+.partidos th:first-child {
+	text-align: left;
+}
+
+.partidos thead th {
+	color: var(--tinta-suave);
+	font-weight: 400;
+}
+
+.partidos-barra {
+	width: 45%;
+	min-width: 8rem;
+}
+
+.partidos-barra .barra-trilho {
+	height: 0.6rem;
+}
+
+/* Comparação */
+
+.acoes {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 1.5rem;
+}
+
+.marcador {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.9375rem;
+	cursor: pointer;
+}
+
+.marcador input {
+	flex: none;
+	width: 1.15rem;
+	height: 1.15rem;
+	min-height: 0;
+	padding: 0;
+	accent-color: var(--acento);
+}
+
+.barra-comparar {
+	position: sticky;
+	bottom: 1rem;
+	z-index: 4;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75rem 1.25rem;
+	width: fit-content;
+	max-width: 100%;
+	margin-top: 1rem;
+	padding: 0.75rem 1rem 0.75rem 1.25rem;
+	background: var(--superficie);
+	border: 1px solid var(--linha);
+	border-radius: 999px;
+	box-shadow: 0 8px 24px color-mix(in srgb, var(--tinta) 14%, transparent);
+}
+
+.botao-principal {
+	padding: 0.4rem 1.1rem;
+	border-radius: 999px;
+	background: var(--tinta);
+	color: var(--fundo);
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.comparacao-lados {
+	display: grid;
+	gap: 1.5rem;
+	max-width: 52rem;
+	margin-top: 2.5rem;
+}
+
+@media (min-width: 40rem) {
+	.comparacao-lados {
+		grid-template-columns: 1fr 1fr;
+		gap: 2.5rem;
+	}
+}
+
+.comparacao-lado {
+	padding-top: 0.9rem;
+	border-top: 2px solid var(--tinta);
+}
+
+.nota {
+	max-width: var(--leitura);
+	margin-top: 1.75rem;
+	padding-left: 1rem;
+	border-left: 2px solid var(--linha);
+	color: var(--tinta-suave);
+	font-size: 0.9375rem;
+}
+
+.alternador {
+	display: inline-flex;
+	min-width: 0;
+	gap: 0.25rem;
+	margin: 0 0 1.25rem;
+	padding: 0.25rem;
+	border: 0;
+	background: var(--linha);
+	border-radius: 999px;
+}
+
+.alternador button {
+	min-height: 0;
+	padding: 0.35rem 1.1rem;
+	background: none;
+	border: 0;
+	border-radius: 999px;
+	color: var(--tinta-suave);
+}
+
+.alternador button[aria-pressed="true"] {
+	background: var(--superficie);
+	color: var(--tinta);
+}
+
+.painel .marcador {
+	margin-top: 0.75rem;
+}
+
+.mudancas {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	max-width: 52rem;
+	border-top: 1px solid var(--linha);
+}
+
+.mudancas > li {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.4rem 1.5rem;
+	padding: 0.7rem 0;
+	border-bottom: 1px solid var(--linha);
+}
+
+.mudancas-votos {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.6rem;
+}
+
+.mudancas-seta {
+	width: 1.25rem;
+	height: 2px;
+	background: var(--tinta-suave);
+	position: relative;
+}
+
+.mudancas-seta::after {
+	content: "";
+	position: absolute;
+	right: 0;
+	top: -3px;
+	width: 6px;
+	height: 6px;
+	border-top: 2px solid var(--tinta-suave);
+	border-right: 2px solid var(--tinta-suave);
+	transform: rotate(45deg);
+}
+
 /* Deputados */
 
 .deputados {
@@ -839,6 +1117,12 @@ button:disabled {
 
 /* Movimento */
 
+@keyframes preencher {
+	from {
+		width: 0;
+	}
+}
+
 @keyframes assento {
 	from {
 		opacity: 0;
@@ -852,6 +1136,13 @@ button:disabled {
 	}
 }
 
+@keyframes subir {
+	from {
+		opacity: 0;
+		transform: translateY(0.75rem);
+	}
+}
+
 @keyframes pulso {
 	50% {
 		opacity: 0.35;
@@ -861,6 +1152,14 @@ button:disabled {
 @media (prefers-reduced-motion: no-preference) {
 	.assento {
 		animation: assento 0.5s var(--saida) backwards;
+	}
+	
+	.barra-comparar {
+		animation: subir 0.3s var(--saida);
+	}
+
+	.regua-preenchido {
+		animation: preencher 0.8s var(--saida) backwards;
 	}
 
 	.esqueleto span[aria-hidden] {

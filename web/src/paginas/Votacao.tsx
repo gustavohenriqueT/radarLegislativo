@@ -8,6 +8,7 @@ import {
 	type VotacaoDetalhe,
 } from "../api";
 import { Legenda } from "../componentes/BarraVotos";
+import { Entenda, VotosPorPartido } from "../componentes/Entenda";
 import { Estado } from "../componentes/Estado";
 import { Hemiciclo } from "../componentes/Hemiciclo";
 import {
@@ -95,6 +96,12 @@ export function Votacao() {
 				</p>
 			</header>
 
+			<Entenda
+				fatos={dados.fatos}
+				quorum={dados.quorum}
+				termos={dados.glossario}
+			/>
+
 			<div className="filtro">
 				<label htmlFor="filtro">Encontrar um deputado nesta votação</label>
 				<input
@@ -143,6 +150,8 @@ export function Votacao() {
 					/>
 				</figcaption>
 			</figure>
+
+			{!termo && <VotosPorPartido partidos={dados.partidos} />}
 
 			{dados.grupos.map((grupo) => {
 				const visiveis = grupo.deputados.filter((deputado) =>

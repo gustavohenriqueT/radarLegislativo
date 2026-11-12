@@ -8,6 +8,7 @@ import {
 	useTitulo,
 } from "../api";
 import { BarraVotos } from "../componentes/BarraVotos";
+import { Glossario } from "../componentes/Entenda";
 import { Estado } from "../componentes/Estado";
 import {
 	data,
@@ -37,6 +38,7 @@ export function Proposicao() {
 		ATUALIZACAO_MS,
 	);
 	const [mostrarCoautores, setMostrarCoautores] = useState(false);
+	const [marcadas, setMarcadas] = useState<string[]>([]);
 	const nome = dados
 		? identificacao(dados.sigla_tipo, dados.numero, dados.ano)
 		: null;
@@ -50,6 +52,19 @@ export function Proposicao() {
 	const proponentes = dados.autores.filter((autor) => autor.proponente);
 	const coautores = dados.autores.filter((autor) => !autor.proponente);
 	const nominais = dados.votacoes.filter((votacao) => votacao.total > 0);
+	const podeComparar = nominais.length >= 2;
+	const [maisRecente, maisAntiga] = dados.votacoes
+		.filter((votacao) => marcadas.includes(votacao.id))
+		.map((votacao) => votacao.id);
+
+	function marcar(idVotacao: string) {
+		setMarcadas((atuais) => {
+			if (atuais.includes(idVotacao)) {
+				return atuais.filter((id) => id !== idVotacao);
+			}
+			return [...atuais, idVotacao].slice(-2);
+		});
+	}
 
 	return (
 		<article>
@@ -143,15 +158,54 @@ export function Proposicao() {
 								)}
 							</p>
 							<p>{votacao.descricao}</p>
+							<Glossario termos={votacao.glossario} />
 							<BarraVotos contagem={votacao} />
 							{votacao.total > 0 && (
-								<Link to={`/votacoes/${votacao.id}`} viewTransition>
-									Ver o voto de cada deputado
-								</Link>
+								<div className="acoes">
+									<Link to={`/votacoes/${votacao.id}`} viewTransition>
+										Ver o voto de cada deputado
+									</Link>
+									{podeComparar && (
+										<label className="marcador">
+											<input
+												type="checkbox"
+												checked={marcadas.includes(votacao.id)}
+												onChange={() => marcar(votacao.id)}
+											/>
+											Comparar
+										</label>
+									)}
+								</div>
 							)}
 						</li>
 					))}
 				</ol>
+
+				{marcadas.length > 0 && (
+					<div className="barra-comparar" role="status">
+						{maisAntiga ? (
+							<>
+								<span>2 votações marcadas</span>
+								<Link
+									to={`/comparar?primeira=${maisAntiga}&segunda=${maisRecente}`}
+									className="botao-principal"
+									viewTransition
+								>
+									Comparar
+								</Link>
+							</>
+						) : (
+							<span>Marque mais uma votação para comparar</span>
+						)}
+						<button
+							type="button"
+							className="botao-texto"
+							onClick={() => setMarcadas([])}
+						>
+							Limpar
+						</button>
+					</div>
+				)}
 			</section>
 		</article>
 	);
