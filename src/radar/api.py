@@ -5,7 +5,7 @@ import psycopg
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from psycopg.rows import dict_row
-from radar import consultas
+from radar import consultas, explicacoes
 from radar.banco import DATABASE_URL
 from radar.organizacao import agrupar_por_tipo, classificar_comparacao
 
@@ -45,6 +45,8 @@ def detalhar_proposicao(conexao: Conexao, id_proposicao: int) -> dict:
     proposicao = consultas.detalhar_proposicao(conexao, id_proposicao)
     if proposicao is None:
         raise HTTPException(status_code=404, detail="Proposição não encontrada")
+    for votacao in proposicao["votacoes"]:
+        votacao["glossario"] = explicacoes.termos_da_descricao(votacao["descricao"])
     return proposicao
 
 
@@ -61,6 +63,12 @@ def detalhar_votacao(conexao: Conexao, id_votacao: str) -> dict:
     if votacao is None:
         raise HTTPException(status_code=404, detail="Votação não encontrada")
     votacao["grupos"] = agrupar_por_tipo(votacao.pop("votos"))
+    votacao["fatos"] = explicacoes.fatos_da_votacao(votacao["grupos"])
+    votacao["quorum"] = explicacoes.quorum_exigido(
+        votacao["sigla_tipo"], votacao["descricao"]
+    )
+    votacao["glossario"] = explicacoes.termos_da_descricao(votacao["descricao"])
+    votacao["partidos"] = consultas.votos_por_partido(conexao, id_votacao)
     return votacao
 
 

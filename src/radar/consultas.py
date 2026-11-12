@@ -215,3 +215,23 @@ def listar_votacoes_recentes(conexao: psycopg.Connection, limite: int) -> list[d
             (limite,),
         )
         return cursor.fetchall()
+
+
+def votos_por_partido(conexao: psycopg.Connection, id_votacao: str) -> list[dict]:
+    with conexao.cursor() as cursor:
+        cursor.execute(
+            """
+            select
+                coalesce(sigla_partido, 'Sem partido') as partido,
+                count(*) filter (where tipo_voto = 'Sim') as sim,
+                count(*) filter (where tipo_voto = 'Não') as nao,
+                count(*) filter (where tipo_voto = 'Abstenção') as abstencao,
+                count(*) as total
+            from votos
+            where id_votacao = %s
+            group by 1
+            order by total desc, partido
+            """,
+            (id_votacao,),
+        )
+        return cursor.fetchall()
