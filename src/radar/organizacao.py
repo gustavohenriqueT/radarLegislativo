@@ -45,3 +45,24 @@ def agrupar_por_tipo(votos: list[dict]) -> list[dict]:
         }
         for tipo in sorted(grupos, key=posicao)
     ]
+
+
+def classificar_comparacao(linhas: list[dict]) -> dict[str, list[dict]]:
+    grupos: dict[str, list[dict]] = {
+        "diferentes": [],
+        "iguais": [],
+        "so_primeira": [],
+        "so_segunda": [],
+    }
+
+    for linha in linhas:
+        if linha["voto_a"] is None:
+            grupos["so_segunda"].append(linha)
+        elif linha["voto_b"] is None:
+            grupos["so_primeira"].append(linha)
+        elif linha["voto_a"] == linha["voto_b"]:
+            grupos["iguais"].append(linha)
+        else:
+            grupos["diferentes"].append(linha)
+
+    return grupos

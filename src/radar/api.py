@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from psycopg.rows import dict_row
 from radar import consultas
 from radar.banco import DATABASE_URL
-from radar.organizacao import agrupar_por_tipo
+from radar.organizacao import agrupar_por_tipo, classificar_comparacao
 
 ORIGENS = os.environ.get("ORIGENS_PERMITIDAS", "http://localhost:5173").split(",")
 
@@ -82,3 +82,12 @@ def detalhar_deputado(conexao: Conexao, id_deputado: int) -> dict:
 @app.get("/status")
 def status(conexao: Conexao) -> dict:
     return consultas.ultima_coleta(conexao)
+
+
+@app.get("/comparacao")
+def comparar_votacoes(conexao: Conexao, primeira: str, segunda: str) -> dict:
+    comparacao = consultas.comparar_votacoes(conexao, primeira, segunda)
+    if comparacao is None:
+        raise HTTPException(status_code=404, detail="Votação não encontrada")
+    comparacao["grupos"] = classificar_comparacao(comparacao.pop("deputados"))
+    return comparacao
