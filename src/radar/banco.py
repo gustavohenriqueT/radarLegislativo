@@ -2,6 +2,8 @@ import os
 import psycopg
 from radar.organizacao import id_deputado_da_uri
 
+
+TIPOS_PROJETO = ["PL", "PEC", "PLP", "MPV", "PDL", "PRC"]
 DATABASE_URL = os.environ.get(
     "DATABASE_URL", "postgresql://radar:radar@localhost:5432/radar"
 )
@@ -181,4 +183,39 @@ def registrar_coleta(
             values (%s, %s, %s)
             """,
             (inicio, fim, total_votacoes),
+        )
+
+def listar_projetos(conexao: psycopg.Connection, ids: set[int]) -> list[int]:
+    with conexao.cursor() as cursor:
+        cursor.execute(
+            """
+            select id
+            from proposicoes
+            where id = any(%s) and sigla_tipo = any(%s)
+            """,
+            (list(ids), TIPOS_PROJETO),
+        )
+        return [linha[0] for linha in cursor.fetchall()]
+
+
+def listar_ids_versoes(conexao: psycopg.Connection) -> set[int]:
+    with conexao.cursor() as cursor:
+        cursor.execute("select id from versoes")
+        return {linha[0] for linha in cursor.fetchall()}
+
+
+def salvar_versao(
+    conexao: psycopg.Connection, id_proposicao: int, versao: dict, texto: str | None
+) -> None:
+    with conexao.cursor() as cursor:
+        cursor.execute(
+            """
+            insert into versoes (id, id_proposicao, rotulo, data, url, texto)
+            values (%(id)s, %(id_proposicao)s, %(rotulo)s, %(data)s, %(url)s, %(texto)s)
+            on conflict (id) do update set
+                rotulo = excluded.rotulo,
+                url = excluded.url,
+                texto = excluded.texto
+            """,
+            {**versao, "id_proposicao": id_proposicao, "texto": texto},
         )

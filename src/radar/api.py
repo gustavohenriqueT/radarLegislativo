@@ -1,11 +1,13 @@
 import os
 from collections.abc import Iterator
 from typing import Annotated
+
 import psycopg
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from psycopg.rows import dict_row
-from radar import consultas, explicacoes
+
+from radar import consultas, explicacoes, textos
 from radar.banco import DATABASE_URL
 from radar.organizacao import agrupar_por_tipo, classificar_comparacao
 
@@ -47,7 +49,25 @@ def detalhar_proposicao(conexao: Conexao, id_proposicao: int) -> dict:
         raise HTTPException(status_code=404, detail="Proposição não encontrada")
     for votacao in proposicao["votacoes"]:
         votacao["glossario"] = explicacoes.termos_da_descricao(votacao["descricao"])
+    versoes = consultas.listar_versoes(conexao, id_proposicao)
+    proposicao["versoes_com_texto"] = sum(versao["tem_texto"] for versao in versoes)
     return proposicao
+
+
+@app.get("/proposicoes/{id_proposicao}/versoes")
+def listar_versoes(conexao: Conexao, id_proposicao: int) -> list[dict]:
+    return consultas.listar_versoes(conexao, id_proposicao)
+
+
+@app.get("/proposicoes/{id_proposicao}/mudancas")
+def comparar_versoes(conexao: Conexao, id_proposicao: int, de: int, para: int) -> dict:
+    antes = consultas.buscar_versao(conexao, id_proposicao, de)
+    depois = consultas.buscar_versao(conexao, id_proposicao, para)
+    if not antes or not depois or not antes["texto"] or not depois["texto"]:
+        raise HTTPException(status_code=404, detail="Versão sem texto para comparar")
+
+    trechos = textos.comparar_textos(antes.pop("texto"), depois.pop("texto"))
+    return {"de": antes, "para": depois, "trechos": trechos}
 
 
 @app.get("/votacoes")

@@ -1,6 +1,8 @@
-import psycopg
-from radar import banco, camara
 import httpx
+import psycopg
+from pypdf.errors import PyPdfError
+
+from radar import banco, camara, textos
 
 
 def _id_proposicao(id_votacao: str) -> int:
@@ -22,6 +24,21 @@ def _coletar_autores(conexao: psycopg.Connection) -> None:
             continue
         banco.salvar_autores(conexao, id_proposicao, autores)
         conexao.commit()
+
+
+def _coletar_versoes(conexao: psycopg.Connection, ids_proposicoes: set[int]) -> None:
+    ja_salvas = banco.listar_ids_versoes(conexao)
+
+    for id_proposicao in banco.listar_projetos(conexao, ids_proposicoes):
+        try:
+            for versao in textos.listar_versoes(id_proposicao, ja_salvas):
+                texto = textos.extrair_texto(versao["url"]) if versao["url"] else None
+                recorte = textos.recortar_dispositivo(texto) if texto else None
+                banco.salvar_versao(conexao, id_proposicao, versao, recorte)
+                conexao.commit()
+                print(f"versão salva: {versao['rotulo']} de {id_proposicao}")
+        except (httpx.HTTPError, PyPdfError):
+            print(f"versões da proposição {id_proposicao} ficam para a próxima coleta")
 
 
 def coletar_periodo(data_inicio: str, data_fim: str) -> None:
@@ -51,5 +68,7 @@ def coletar_periodo(data_inicio: str, data_fim: str) -> None:
             print(f"{votacao['id']}: {len(votos)} votos")
 
         _coletar_autores(conexao)
+        _coletar_versoes(conexao, ids_proposicoes)
+
         banco.registrar_coleta(conexao, data_inicio, data_fim, len(votacoes))
         conexao.commit()

@@ -56,3 +56,14 @@ create table if not exists coletas (
     fim date not null,
     total_votacoes integer not null
 );
+
+create table if not exists versoes (
+    id integer primary key,
+    id_proposicao integer not null references proposicoes (id),
+    rotulo text not null,
+    data timestamp,
+    url text,
+    texto text
+);
+
+create index if not exists idx_versoes_proposicao on versoes (id_proposicao);

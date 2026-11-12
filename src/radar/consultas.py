@@ -1,4 +1,5 @@
 import psycopg
+from radar.banco import TIPOS_PROJETO
 
 TIPOS_PROJETO = ["PL", "PEC", "PLP", "MPV", "PDL", "PRC"]
 POR_PAGINA = 20
@@ -235,3 +236,31 @@ def votos_por_partido(conexao: psycopg.Connection, id_votacao: str) -> list[dict
             (id_votacao,),
         )
         return cursor.fetchall()
+
+def listar_versoes(conexao: psycopg.Connection, id_proposicao: int) -> list[dict]:
+    with conexao.cursor() as cursor:
+        cursor.execute(
+            """
+            select id, rotulo, data, url, texto is not null as tem_texto
+            from versoes
+            where id_proposicao = %s
+            order by data, id
+            """,
+            (id_proposicao,),
+        )
+        return cursor.fetchall()
+
+
+def buscar_versao(
+    conexao: psycopg.Connection, id_proposicao: int, id_versao: int
+) -> dict | None:
+    with conexao.cursor() as cursor:
+        cursor.execute(
+            """
+            select id, rotulo, data, url, texto
+            from versoes
+            where id_proposicao = %s and id = %s
+            """,
+            (id_proposicao, id_versao),
+        )
+        return cursor.fetchone()
