@@ -86,6 +86,7 @@ export type ProposicaoDetalhe = {
 	url_inteiro_teor: string | null;
 	autores: Autor[];
 	votacoes: VotacaoResumo[];
+	versoes_com_texto: number;
 };
 
 export type DeputadoNoVoto = {
@@ -180,6 +181,29 @@ export type Comparacao = {
 		so_primeira: DeputadoComparado[];
 		so_segunda: DeputadoComparado[];
 	};
+};
+
+export type Versao = {
+	id: number;
+	rotulo: string;
+	data: string | null;
+	url: string | null;
+	tem_texto: boolean;
+};
+
+export type ParteDoTexto = {
+	tipo: "igual" | "incluido" | "retirado";
+	texto: string;
+};
+
+export type Trecho =
+	| { tipo: "igual" | "incluido" | "retirado"; texto: string }
+	| { tipo: "alterado"; partes: ParteDoTexto[] };
+
+export type Mudancas = {
+	de: Versao;
+	para: Versao;
+	trechos: Trecho[];
 };
 
 export type Status = {

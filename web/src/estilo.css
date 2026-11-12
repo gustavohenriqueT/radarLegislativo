@@ -859,6 +859,94 @@ button:disabled {
 	height: 0.6rem;
 }
 
+/* Texto */
+
+.versoes {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	max-width: 52rem;
+	border-top: 1px solid var(--linha);
+}
+
+.versoes > li {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 0.25rem 1.5rem;
+	padding: 0.7rem 0;
+	border-bottom: 1px solid var(--linha);
+}
+
+.texto-escolha {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem 1rem;
+	margin-bottom: 1rem;
+}
+
+.campo {
+	display: grid;
+	gap: 0.35rem;
+	font-size: 0.9375rem;
+	font-weight: 700;
+}
+
+.campo select {
+	font-weight: 400;
+}
+
+.texto-controles {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem 1.5rem;
+	max-width: var(--leitura);
+	margin: 1rem 0;
+}
+
+.texto-legenda {
+	display: flex;
+	gap: 1rem;
+	font-size: 0.875rem;
+}
+
+.texto-comparado {
+	max-width: var(--leitura);
+	padding: 1.25rem 1.5rem;
+	background: var(--superficie);
+	border: 1px solid var(--linha);
+	border-radius: calc(var(--raio) * 1.5);
+}
+
+.trecho + .trecho {
+	margin-top: 1rem;
+}
+
+.trecho-igual {
+	color: var(--tinta-suave);
+}
+
+ins {
+	padding: 0.05em 0.15em;
+	border-radius: 3px;
+	text-decoration: none;
+	background-image: linear-gradient(
+		color-mix(in srgb, var(--voto-nao) 45%, transparent),
+		color-mix(in srgb, var(--voto-nao) 45%, transparent)
+	);
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	box-decoration-break: clone;
+	-webkit-box-decoration-break: clone;
+}
+
+del {
+	color: var(--tinta-suave);
+	text-decoration-thickness: 1.5px;
+}
+
 /* Comparação */
 
 .acoes {
@@ -1117,6 +1205,12 @@ button:disabled {
 
 /* Movimento */
 
+@keyframes marcar {
+	from {
+		background-size: 0 100%;
+	}
+}
+
 @keyframes preencher {
 	from {
 		width: 0;
@@ -1154,6 +1248,10 @@ button:disabled {
 		animation: assento 0.5s var(--saida) backwards;
 	}
 	
+	.texto-comparado ins {
+		animation: marcar 0.6s var(--saida) backwards;
+	}
+
 	.barra-comparar {
 		animation: subir 0.3s var(--saida);
 	}
