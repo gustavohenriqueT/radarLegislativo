@@ -86,6 +86,7 @@ def buscar_autores(id_proposicao: int) -> list[dict]:
     corpo = _requisitar_opcional(f"{BASE_URL}/proposicoes/{id_proposicao}/autores")
     return corpo["dados"] if corpo else []
 
+
 def buscar_relacionadas(id_proposicao: int) -> list[dict]:
     corpo = _requisitar_opcional(f"{BASE_URL}/proposicoes/{id_proposicao}/relacionadas")
     return corpo["dados"] if corpo else []

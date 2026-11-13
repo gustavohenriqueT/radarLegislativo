@@ -1,4 +1,10 @@
-from radar.explicacoes import fatos_da_votacao, quorum_exigido, termos_da_descricao
+from radar.explicacoes import (
+    etapa_do_projeto,
+    fatos_da_votacao,
+    natureza_da_votacao,
+    quorum_exigido,
+    termos_da_descricao,
+)
 
 
 def nomes(descricao: str) -> list[str]:
@@ -65,3 +71,34 @@ def test_fatos_contam_diferenca_e_quem_nao_registrou_voto():
 
     assert fatos["diferenca"] == 200
     assert fatos["sem_registro"] == 100
+
+
+def test_natureza_separa_procedimento_de_texto():
+    assert natureza_da_votacao("Aprovado o Requerimento de Urgência")["chave"] == (
+        "procedimento"
+    )
+    assert natureza_da_votacao("Mantido o texto. Sim: 335")["chave"] == "trecho"
+    assert natureza_da_votacao("Aprovada a Redação Final")["chave"] == "texto"
+
+
+def test_pec_concluida_fica_depois_da_ultima_etapa():
+    caminho = etapa_do_projeto("PEC", "Transformada em Norma Jurídica", "MESA")
+
+    assert caminho["posicao"] == len(caminho["etapas"])
+    assert [etapa["chave"] for etapa in caminho["etapas"]][-1] == "promulgacao"
+
+
+def test_projeto_em_comissao_pelo_orgao_quando_a_situacao_nao_diz():
+    caminho = etapa_do_projeto("PL", "", "CCJC")
+
+    assert caminho["atual"] == "comissoes"
+
+
+def test_projeto_remetido_ao_senado():
+    assert etapa_do_projeto("PL", "Remetida ao Senado Federal", "MESA")["atual"] == (
+        "senado"
+    )
+
+
+def test_tipo_desconhecido_nao_tem_caminho():
+    assert etapa_do_projeto("REQ", "Pronta para Pauta", "PLEN") is None

@@ -49,8 +49,13 @@ def detalhar_proposicao(conexao: Conexao, id_proposicao: int) -> dict:
         raise HTTPException(status_code=404, detail="Proposição não encontrada")
     for votacao in proposicao["votacoes"]:
         votacao["glossario"] = explicacoes.termos_da_descricao(votacao["descricao"])
+        votacao["natureza"] = explicacoes.natureza_da_votacao(votacao["descricao"])
     versoes = consultas.listar_versoes(conexao, id_proposicao)
     proposicao["versoes_com_texto"] = sum(versao["tem_texto"] for versao in versoes)
+    proposicao["tipo"] = explicacoes.TIPOS_DE_PROJETO.get(proposicao["sigla_tipo"])
+    proposicao["caminho"] = explicacoes.etapa_do_projeto(
+        proposicao["sigla_tipo"], proposicao["situacao"], proposicao["orgao_situacao"]
+    )
     return proposicao
 
 
@@ -88,6 +93,7 @@ def detalhar_votacao(conexao: Conexao, id_votacao: str) -> dict:
         votacao["sigla_tipo"], votacao["descricao"]
     )
     votacao["glossario"] = explicacoes.termos_da_descricao(votacao["descricao"])
+    votacao["natureza"] = explicacoes.natureza_da_votacao(votacao["descricao"])
     votacao["partidos"] = consultas.votos_por_partido(conexao, id_votacao)
     return votacao
 

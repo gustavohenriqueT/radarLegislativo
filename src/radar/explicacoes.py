@@ -187,3 +187,143 @@ def fatos_da_votacao(grupos: list[dict]) -> dict:
         "sem_registro": max(CADEIRAS - total, 0),
         "cadeiras": CADEIRAS,
     }
+
+
+TIPOS_DE_PROJETO = {
+    "PL": {
+        "nome": "Projeto de Lei",
+        "explicacao": "Cria, altera ou revoga uma lei comum. Passa pela Câmara e pelo "
+        "Senado e, se aprovado nos dois, vai à sanção da Presidência.",
+        "aprovacao": "Maioria simples dos presentes, com pelo menos 257 deputados em "
+        "Plenário.",
+        "etapas": ["apresentacao", "comissoes", "plenario", "senado", "sancao"],
+    },
+    "PLP": {
+        "nome": "Projeto de Lei Complementar",
+        "explicacao": "Regula temas que a Constituição reservou para lei complementar. "
+        "Segue o mesmo caminho de um projeto de lei, com exigência maior de votos.",
+        "aprovacao": "Maioria absoluta, ou seja, 257 dos 513 deputados.",
+        "etapas": ["apresentacao", "comissoes", "plenario", "senado", "sancao"],
+    },
+    "PEC": {
+        "nome": "Proposta de Emenda à Constituição",
+        "explicacao": "Altera o texto da Constituição. Precisa de dois turnos de votação "
+        "em cada Casa e não passa pela sanção da Presidência.",
+        "aprovacao": "Três quintos dos deputados, 308 dos 513, em cada um dos dois "
+        "turnos.",
+        "etapas": ["apresentacao", "comissoes", "plenario", "senado", "promulgacao"],
+    },
+    "MPV": {
+        "nome": "Medida Provisória",
+        "explicacao": "Editada pela Presidência da República com força de lei imediata. "
+        "O Congresso tem até 120 dias para aprovar, senão ela perde a validade.",
+        "aprovacao": "Maioria simples dos presentes na Câmara e no Senado.",
+        "etapas": ["apresentacao", "comissoes", "plenario", "senado", "promulgacao"],
+    },
+    "PDL": {
+        "nome": "Projeto de Decreto Legislativo",
+        "explicacao": "Trata de assuntos da competência exclusiva do Congresso, como "
+        "aprovar tratados internacionais. Não passa pela sanção.",
+        "aprovacao": "Maioria simples dos presentes.",
+        "etapas": ["apresentacao", "comissoes", "plenario", "senado", "promulgacao"],
+    },
+    "PRC": {
+        "nome": "Projeto de Resolução",
+        "explicacao": "Trata do funcionamento interno da própria Câmara. É decidido só "
+        "pela Câmara.",
+        "aprovacao": "Maioria simples dos presentes.",
+        "etapas": ["apresentacao", "comissoes", "plenario", "promulgacao"],
+    },
+}
+
+NOMES_DAS_ETAPAS = {
+    "apresentacao": "Apresentação",
+    "comissoes": "Comissões",
+    "plenario": "Plenário da Câmara",
+    "senado": "Senado",
+    "sancao": "Sanção",
+    "promulgacao": "Promulgação",
+    "arquivado": "Arquivado",
+}
+
+SITUACOES = [
+    (r"transformad[oa] em norma|promulgad|sancionad", "concluido"),
+    (r"arquivad|retirad[oa] pelo autor|prejudicad|rejeitad", "arquivado"),
+    (r"sancao|san[cç][aã]o|veto", "sancao"),
+    (r"senado|remetid|enviad", "senado"),
+    (r"plenario|pauta|redacao final", "plenario"),
+    (r"relator|comiss|parecer|tramitando|prazo", "comissoes"),
+]
+
+
+def etapa_do_projeto(
+    sigla_tipo: str | None, situacao: str | None, orgao: str | None
+) -> dict | None:
+    tipo = TIPOS_DE_PROJETO.get(sigla_tipo or "")
+    if tipo is None:
+        return None
+
+    texto = _normalizar(situacao)
+    etapa = None
+    for padrao, candidata in SITUACOES:
+        if re.search(padrao, texto):
+            etapa = candidata
+            break
+
+    if etapa is None and orgao:
+        if orgao == "PLEN":
+            etapa = "plenario"
+        elif orgao in ("SF", "SENADO"):
+            etapa = "senado"
+        elif orgao not in ("MESA", "CD"):
+            etapa = "comissoes"
+
+    if etapa is None:
+        return None
+
+    etapas = tipo["etapas"]
+    if etapa == "concluido":
+        posicao = len(etapas)
+    elif etapa == "arquivado":
+        posicao = -1
+    elif etapa in etapas:
+        posicao = etapas.index(etapa)
+    else:
+        return None
+
+    return {
+        "etapas": [
+            {"chave": chave, "nome": NOMES_DAS_ETAPAS[chave]} for chave in etapas
+        ],
+        "atual": etapa,
+        "posicao": posicao,
+    }
+
+
+NATUREZAS = [
+    (
+        (
+            r"redacao final|turno|texto principal|substitutivo|subemenda|projeto de lei|"
+            r"proposta de emenda|medida provisoria|decreto legislativo|resolucao"
+        ),
+        "texto",
+        "Texto do projeto",
+    ),
+    (r"destaque|emenda|mantido o texto|suprimido", "trecho", "Trecho do texto"),
+    (
+        (
+            r"requerimento|urgencia|preferencia|adiamento|retirada|intersticio|"
+            r"regime de tramitacao|inversao"
+        ),
+        "procedimento",
+        "Procedimento",
+    ),
+]
+
+
+def natureza_da_votacao(descricao: str | None) -> dict:
+    texto = _normalizar(descricao)
+    for padrao, chave, rotulo in NATUREZAS:
+        if re.search(padrao, texto):
+            return {"chave": chave, "rotulo": rotulo}
+    return {"chave": "outra", "rotulo": "Votação"}

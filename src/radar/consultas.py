@@ -1,7 +1,7 @@
 import psycopg
+
 from radar.banco import TIPOS_PROJETO
 
-TIPOS_PROJETO = ["PL", "PEC", "PLP", "MPV", "PDL", "PRC"]
 POR_PAGINA = 20
 
 
@@ -53,7 +53,8 @@ def detalhar_proposicao(conexao: psycopg.Connection, id_proposicao: int) -> dict
             """
             select
                 id, sigla_tipo, numero, ano, ementa,
-                data_apresentacao, url_inteiro_teor
+                data_apresentacao, url_inteiro_teor,
+                situacao, orgao_situacao, data_situacao
             from proposicoes
             where id = %s
             """,
@@ -174,6 +175,9 @@ def detalhar_deputado(conexao: psycopg.Connection, id_deputado: int) -> dict | N
         )
         deputado["votos"] = cursor.fetchall()
 
+        cursor.execute("select count(distinct id_votacao) as total from votos")
+        deputado["votacoes_nominais"] = cursor.fetchone()["total"]
+
         cursor.execute(
             """
             select p.id, p.sigla_tipo, p.numero, p.ano, p.ementa, a.proponente
@@ -191,7 +195,18 @@ def detalhar_deputado(conexao: psycopg.Connection, id_deputado: int) -> dict | N
 
 def ultima_coleta(conexao: psycopg.Connection) -> dict:
     with conexao.cursor() as cursor:
-        cursor.execute("select max(executada_em) as ultima_coleta from coletas")
+        cursor.execute(
+            """
+            select
+                (select max(executada_em) from coletas) as ultima_coleta,
+                (select count(*) from votacoes) as votacoes,
+                (select count(distinct id_votacao) from votos) as votacoes_nominais,
+                (select count(*) from proposicoes where sigla_tipo = any(%s)) as projetos,
+                (select count(distinct id_deputado) from votos) as deputados,
+                (select min(data) from votacoes) as desde
+            """,
+            (TIPOS_PROJETO,),
+        )
         return cursor.fetchone()
 
 
@@ -218,6 +233,51 @@ def listar_votacoes_recentes(conexao: psycopg.Connection, limite: int) -> list[d
         return cursor.fetchall()
 
 
+def _resumir_votacao(conexao: psycopg.Connection, id_votacao: str) -> dict | None:
+    with conexao.cursor() as cursor:
+        cursor.execute(
+            """
+            select
+                v.id, v.data, v.descricao, v.aprovacao,
+                p.id as id_proposicao, p.sigla_tipo, p.numero, p.ano
+            from votacoes v
+            left join proposicoes p on p.id = v.id_proposicao
+            where v.id = %s
+            """,
+            (id_votacao,),
+        )
+        return cursor.fetchone()
+
+
+def comparar_votacoes(
+    conexao: psycopg.Connection, id_primeira: str, id_segunda: str
+) -> dict | None:
+    primeira = _resumir_votacao(conexao, id_primeira)
+    segunda = _resumir_votacao(conexao, id_segunda)
+    if primeira is None or segunda is None:
+        return None
+
+    with conexao.cursor() as cursor:
+        cursor.execute(
+            """
+            select
+                d.id, d.nome, d.sigla_uf,
+                a.tipo_voto as voto_a,
+                b.tipo_voto as voto_b,
+                coalesce(b.sigla_partido, a.sigla_partido) as sigla_partido
+            from (select * from votos where id_votacao = %(primeira)s) a
+            full join (select * from votos where id_votacao = %(segunda)s) b
+                on b.id_deputado = a.id_deputado
+            join deputados d on d.id = coalesce(a.id_deputado, b.id_deputado)
+            order by d.nome
+            """,
+            {"primeira": id_primeira, "segunda": id_segunda},
+        )
+        linhas = cursor.fetchall()
+
+    return {"primeira": primeira, "segunda": segunda, "deputados": linhas}
+
+
 def votos_por_partido(conexao: psycopg.Connection, id_votacao: str) -> list[dict]:
     with conexao.cursor() as cursor:
         cursor.execute(
@@ -236,6 +296,7 @@ def votos_por_partido(conexao: psycopg.Connection, id_votacao: str) -> list[dict
             (id_votacao,),
         )
         return cursor.fetchall()
+
 
 def listar_versoes(conexao: psycopg.Connection, id_proposicao: int) -> list[dict]:
     with conexao.cursor() as cursor:

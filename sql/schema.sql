@@ -67,3 +67,7 @@ create table if not exists versoes (
 );
 
 create index if not exists idx_versoes_proposicao on versoes (id_proposicao);
+
+alter table proposicoes add column if not exists situacao text;
+alter table proposicoes add column if not exists orgao_situacao text;
+alter table proposicoes add column if not exists data_situacao timestamp;

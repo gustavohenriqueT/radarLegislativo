@@ -104,22 +104,34 @@ def listar_ids_proposicoes(conexao: psycopg.Connection) -> set[int]:
 
 
 def salvar_proposicao(conexao: psycopg.Connection, proposicao: dict) -> None:
+    status = proposicao.get("statusProposicao") or {}
+    linha = {
+        **proposicao,
+        "situacao": status.get("descricaoSituacao") or None,
+        "orgao_situacao": status.get("siglaOrgao"),
+        "data_situacao": status.get("dataHora"),
+    }
     with conexao.cursor() as cursor:
         cursor.execute(
             """
             insert into proposicoes (
                 id, sigla_tipo, numero, ano, ementa,
-                data_apresentacao, url_inteiro_teor
+                data_apresentacao, url_inteiro_teor,
+                situacao, orgao_situacao, data_situacao
             )
             values (
                 %(id)s, %(siglaTipo)s, %(numero)s, %(ano)s, %(ementa)s,
-                %(dataApresentacao)s, %(urlInteiroTeor)s
+                %(dataApresentacao)s, %(urlInteiroTeor)s,
+                %(situacao)s, %(orgao_situacao)s, %(data_situacao)s
             )
             on conflict (id) do update set
                 ementa = excluded.ementa,
-                url_inteiro_teor = excluded.url_inteiro_teor
+                url_inteiro_teor = excluded.url_inteiro_teor,
+                situacao = excluded.situacao,
+                orgao_situacao = excluded.orgao_situacao,
+                data_situacao = excluded.data_situacao
             """,
-            proposicao,
+            linha,
         )
 
 
@@ -184,6 +196,7 @@ def registrar_coleta(
             """,
             (inicio, fim, total_votacoes),
         )
+
 
 def listar_projetos(conexao: psycopg.Connection, ids: set[int]) -> list[int]:
     with conexao.cursor() as cursor:
