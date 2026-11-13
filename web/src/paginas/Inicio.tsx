@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import {
 	ATUALIZACAO_MS,
 	type ProposicaoResumo,
+	type Status,
 	useAtrasado,
 	useDados,
 	useTitulo,
@@ -11,7 +12,7 @@ import {
 import { Legenda, partesDaContagem } from "../componentes/BarraVotos";
 import { Estado } from "../componentes/Estado";
 import { Hemiciclo } from "../componentes/Hemiciclo";
-import { data, identificacao, NOMES_TIPOS, plural } from "../formato";
+import { data, identificacao, NOMES_TIPOS, numero, plural } from "../formato";
 
 const POR_PAGINA = 20;
 
@@ -52,6 +53,88 @@ function UltimaVotacao() {
 				</Link>
 				, {data(votacao.data)}. {votacao.descricao}
 			</p>
+		</section>
+	);
+}
+
+function EmNumeros() {
+	const { dados } = useDados<Status>("/status", ATUALIZACAO_MS);
+
+	if (!dados || dados.votacoes === 0) {
+		return null;
+	}
+
+	return (
+		<section className="numeros" aria-label="O que já está no site">
+			<div>
+				<strong>{numero(dados.projetos)}</strong>
+				<span>projetos votados</span>
+			</div>
+			<div>
+				<strong>{numero(dados.votacoes_nominais)}</strong>
+				<span>votações com voto nominal</span>
+			</div>
+			<div>
+				<strong>{numero(dados.deputados)}</strong>
+				<span>deputados com voto registrado</span>
+			</div>
+			{dados.desde && (
+				<div>
+					<strong>{data(dados.desde)}</strong>
+					<span>início da cobertura</span>
+				</div>
+			)}
+		</section>
+	);
+}
+
+const PASSOS = [
+	{
+		nome: "Apresentação",
+		texto:
+			"Um deputado, uma comissão, o Senado ou o Governo apresenta o projeto.",
+	},
+	{
+		nome: "Comissões",
+		texto:
+			"Grupos menores de deputados analisam o tema e podem reescrever o texto.",
+	},
+	{
+		nome: "Plenário",
+		texto:
+			"Os 513 deputados votam. É aqui que o voto de cada um fica registrado.",
+	},
+	{
+		nome: "Senado",
+		texto:
+			"O texto segue para os senadores, que podem aprovar ou devolver com mudanças.",
+	},
+	{
+		nome: "Sanção",
+		texto:
+			"A Presidência aprova ou veta. Emendas à Constituição são promulgadas pelo Congresso.",
+	},
+];
+
+function ComoFunciona() {
+	return (
+		<section className="secao" aria-labelledby="como-funciona">
+			<h2 id="como-funciona">Como um projeto vira lei</h2>
+			<p className="detalhe">
+				O caminho mais comum, do início ao fim. Cada projeto no site mostra em
+				que etapa está.
+			</p>
+			<ol className="passos">
+				{PASSOS.map((passo, indice) => (
+					<li key={passo.nome}>
+						<span className="passos-numero" aria-hidden="true">
+							{indice + 1}
+						</span>
+						<strong>{passo.nome}</strong>
+						<span>{passo.texto}</span>
+					</li>
+				))}
+			</ol>
 		</section>
 	);
 }
@@ -154,6 +237,8 @@ export function Inicio() {
 				<UltimaVotacao />
 			</div>
 
+			<EmNumeros />
+
 			<section aria-labelledby="titulo-lista" className="secao">
 				<h2 id="titulo-lista">
 					{busca ? `Resultados para “${busca}”` : "Projetos votados"}
@@ -220,6 +305,8 @@ export function Inicio() {
 					</nav>
 				)}
 			</section>
+
+			{!busca && <ComoFunciona />}
 		</>
 	);
 }

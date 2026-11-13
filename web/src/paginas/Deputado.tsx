@@ -64,6 +64,32 @@ export function Deputado() {
 							nos períodos coletados.
 						</p>
 						<Legenda partes={resumo} />
+						{dados.votacoes_nominais > 0 && (
+							<div className="presenca">
+								<div className="barra-trilho" aria-hidden="true">
+									<span
+										className="barra-parte voto-sim"
+										style={{ flexGrow: dados.votos.length }}
+									/>
+									<span
+										className="barra-parte voto-outros"
+										style={{
+											flexGrow: dados.votacoes_nominais - dados.votos.length,
+										}}
+									/>
+								</div>
+								<p className="detalhe">
+									Registrou voto em {dados.votos.length} das{" "}
+									{plural(
+										dados.votacoes_nominais,
+										"votação nominal coletada",
+										"votações nominais coletadas",
+									)}
+									. A ausência de registro pode ter motivos diversos, como
+									licença ou missão oficial.
+								</p>
+							</div>
+						)}
 						<ol className="votos">
 							{dados.votos.map((voto) => (
 								<li key={voto.id_votacao}>

@@ -11,6 +11,7 @@ import { Legenda } from "../componentes/BarraVotos";
 import { Entenda, VotosPorPartido } from "../componentes/Entenda";
 import { Estado } from "../componentes/Estado";
 import { Hemiciclo } from "../componentes/Hemiciclo";
+import { Natureza } from "../componentes/Natureza";
 import {
 	chaveDoVoto,
 	data,
@@ -88,11 +89,14 @@ export function Votacao() {
 				)}
 				<h1 className="titulo-grande">{nome}</h1>
 				<p className="ementa">{dados.descricao}</p>
-				<p className="detalhe">
-					Votação de {data(dados.data)}
-					{resultado(dados.aprovacao) &&
-						`, ${resultado(dados.aprovacao)?.toLowerCase()}`}
-					.
+				<p className="detalhe votacao-meta">
+					<Natureza natureza={dados.natureza} />
+					<span>
+						Votação de {data(dados.data)}
+						{resultado(dados.aprovacao) &&
+							`, ${resultado(dados.aprovacao)?.toLowerCase()}`}
+						.
+					</span>
 				</p>
 			</header>
 

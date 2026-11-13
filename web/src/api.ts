@@ -68,12 +68,35 @@ export type VotosDoPartido = {
 	total: number;
 };
 
+export type Natureza = {
+	chave: "texto" | "trecho" | "procedimento" | "outra";
+	rotulo: string;
+};
+
 export type VotacaoResumo = Contagem & {
 	id: string;
 	data: string;
 	descricao: string | null;
 	aprovacao: boolean | null;
 	glossario: Termo[];
+	natureza: Natureza;
+};
+
+export type TipoDeProjeto = {
+	nome: string;
+	explicacao: string;
+	aprovacao: string;
+};
+
+export type Etapa = {
+	chave: string;
+	nome: string;
+};
+
+export type Caminho = {
+	etapas: Etapa[];
+	atual: string;
+	posicao: number;
 };
 
 export type ProposicaoDetalhe = {
@@ -84,9 +107,14 @@ export type ProposicaoDetalhe = {
 	ementa: string | null;
 	data_apresentacao: string | null;
 	url_inteiro_teor: string | null;
+	situacao: string | null;
+	orgao_situacao: string | null;
+	data_situacao: string | null;
 	autores: Autor[];
 	votacoes: VotacaoResumo[];
 	versoes_com_texto: number;
+	tipo: TipoDeProjeto | null;
+	caminho: Caminho | null;
 };
 
 export type DeputadoNoVoto = {
@@ -116,6 +144,7 @@ export type VotacaoDetalhe = {
 	fatos: Fatos;
 	quorum: Quorum | null;
 	glossario: Termo[];
+	natureza: Natureza;
 	partidos: VotosDoPartido[];
 };
 
@@ -150,6 +179,7 @@ export type ProjetoDeAutoria = {
 export type DeputadoDetalhe = DeputadoResumo & {
 	votos: VotoDoDeputado[];
 	autoria: ProjetoDeAutoria[];
+	votacoes_nominais: number;
 };
 
 export type DeputadoComparado = {
@@ -208,6 +238,11 @@ export type Mudancas = {
 
 export type Status = {
 	ultima_coleta: string | null;
+	votacoes: number;
+	votacoes_nominais: number;
+	projetos: number;
+	deputados: number;
+	desde: string | null;
 };
 
 async function buscar<T>(caminho: string): Promise<T> {

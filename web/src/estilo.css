@@ -734,6 +734,272 @@ button:disabled {
 	color: var(--tinta);
 }
 
+/* Ficha e caminho */
+
+.ficha {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+	gap: 1px;
+	max-width: 52rem;
+	margin: 0;
+	background: var(--linha);
+	border: 1px solid var(--linha);
+	border-radius: calc(var(--raio) * 1.5);
+	overflow: hidden;
+}
+
+.ficha-item {
+	padding: 1rem 1.25rem;
+	background: var(--superficie);
+}
+
+.ficha-item-largo {
+	grid-column: 1 / -1;
+}
+
+.ficha dt {
+	margin-bottom: 0.2rem;
+	color: var(--tinta-suave);
+	font-size: 0.8125rem;
+	font-weight: 700;
+}
+
+.ficha dd {
+	margin: 0;
+	font-size: 1.0625rem;
+}
+
+.ficha-item-largo dd {
+	font-size: 1rem;
+	max-width: 44rem;
+}
+
+.caminho {
+	max-width: 52rem;
+	margin: 1.5rem 0 0;
+}
+
+.caminho-etapas {
+	--progresso: 0;
+	position: relative;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+	gap: 0.5rem;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.caminho-etapas::before,
+.caminho-etapas::after {
+	content: "";
+	position: absolute;
+	top: 0.55rem;
+	left: 0.6rem;
+	right: 0.6rem;
+	height: 3px;
+	border-radius: 999px;
+	background: var(--linha);
+}
+
+.caminho-etapas::after {
+	right: auto;
+	width: calc((100% - 1.2rem) * var(--progresso));
+	background: var(--tinta);
+}
+
+.caminho-etapas li {
+	position: relative;
+	z-index: 1;
+	display: grid;
+	gap: 0.6rem;
+	justify-items: start;
+}
+
+.caminho-ponto {
+	width: 1.2rem;
+	height: 1.2rem;
+	border-radius: 50%;
+	background: var(--fundo);
+	border: 3px solid var(--linha);
+	transition:
+		border-color 0.3s,
+		background-color 0.3s;
+}
+
+.caminho-etapas li[data-estado="feita"] .caminho-ponto {
+	background: var(--tinta);
+	border-color: var(--tinta);
+}
+
+.caminho-etapas li[data-estado="atual"] .caminho-ponto {
+	border-color: var(--tinta);
+	box-shadow: 0 0 0 4px color-mix(in srgb, var(--voto-nao) 45%, transparent);
+}
+
+.caminho-nome {
+	font-size: 0.875rem;
+	color: var(--tinta-suave);
+}
+
+.caminho-etapas li[data-estado="atual"] .caminho-nome {
+	color: var(--tinta);
+	font-weight: 700;
+}
+
+.caminho figcaption {
+	margin-top: 1rem;
+}
+
+.natureza {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.1rem 0.6rem 0.1rem 0.45rem;
+	border-radius: 999px;
+	border: 1px solid var(--linha);
+	background: var(--superficie);
+	font-size: 0.8125rem;
+	font-weight: 700;
+	color: var(--tinta);
+}
+
+.natureza-icone {
+	width: 0.6rem;
+	height: 0.6rem;
+	border-radius: 2px;
+	background: var(--tinta);
+}
+
+.natureza-trecho .natureza-icone {
+	width: 0.6rem;
+	height: 0.35rem;
+}
+
+.natureza-procedimento .natureza-icone {
+	border-radius: 50%;
+	background: none;
+	border: 2px solid var(--tinta-suave);
+}
+
+.natureza-outra .natureza-icone {
+	background: var(--tinta-suave);
+}
+
+.votacao-meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 0.75rem;
+}
+
+.presenca {
+	max-width: var(--leitura);
+	margin-top: 1rem;
+}
+
+.presenca .barra-trilho {
+	height: 0.6rem;
+}
+
+.presenca .detalhe {
+	margin-top: 0.5rem;
+}
+
+/* Inicial */
+
+.abertura {
+	position: relative;
+}
+
+.abertura::before {
+	content: "";
+	position: absolute;
+	inset: -3rem -1.25rem auto;
+	height: 22rem;
+	z-index: -1;
+	background: radial-gradient(
+			ellipse 60% 100% at 50% 100%,
+			transparent 56%,
+			var(--linha) 56.5%,
+			var(--linha) 57%,
+			transparent 57.5%,
+			transparent 66%,
+			var(--linha) 66.5%,
+			var(--linha) 67%,
+			transparent 67.5%,
+			transparent 76%,
+			var(--linha) 76.5%,
+			var(--linha) 77%,
+			transparent 77.5%
+		)
+		no-repeat;
+	opacity: 0.6;
+	mask-image: linear-gradient(to top, transparent, #000 40%);
+	pointer-events: none;
+}
+
+.numeros {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+	gap: 1px;
+	margin-top: 3.5rem;
+	background: var(--linha);
+	border-top: 1px solid var(--linha);
+	border-bottom: 1px solid var(--linha);
+}
+
+.numeros > div {
+	display: grid;
+	gap: 0.15rem;
+	padding: 1.25rem 1.25rem 1.25rem 0;
+	background: var(--fundo);
+}
+
+.numeros strong {
+	font-size: 1.75rem;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	line-height: 1.1;
+	font-variant-numeric: tabular-nums;
+}
+
+.numeros span {
+	color: var(--tinta-suave);
+	font-size: 0.9375rem;
+}
+
+.passos {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+	gap: 1.5rem;
+	list-style: none;
+	margin: 1.5rem 0 0;
+	padding: 0;
+}
+
+.passos li {
+	display: grid;
+	gap: 0.35rem;
+	padding-top: 1rem;
+	border-top: 2px solid var(--tinta);
+}
+
+.passos-numero {
+	font-size: 0.8125rem;
+	font-weight: 700;
+	color: var(--tinta-suave);
+}
+
+.passos strong {
+	font-size: 1.0625rem;
+}
+
+.passos li > span:last-child {
+	color: var(--tinta-suave);
+	font-size: 0.9375rem;
+}
+
 /* Entenda */
 
 .entenda {
@@ -1211,6 +1477,12 @@ del {
 	}
 }
 
+@keyframes avancar {
+	from {
+		width: 0;
+	}
+}
+
 @keyframes preencher {
 	from {
 		width: 0;
@@ -1254,6 +1526,10 @@ del {
 
 	.barra-comparar {
 		animation: subir 0.3s var(--saida);
+	}
+
+	.caminho-etapas::after {
+		animation: avancar 0.9s var(--saida) backwards;
 	}
 
 	.regua-preenchido {

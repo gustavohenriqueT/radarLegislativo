@@ -8,8 +8,11 @@ import {
 	useTitulo,
 } from "../api";
 import { BarraVotos } from "../componentes/BarraVotos";
+import { Caminho } from "../componentes/Caminho";
 import { Glossario } from "../componentes/Entenda";
 import { Estado } from "../componentes/Estado";
+import { Ficha } from "../componentes/Ficha";
+import { Natureza } from "../componentes/Natureza";
 import {
 	data,
 	identificacao,
@@ -88,7 +91,29 @@ export function Proposicao() {
 						</a>
 					)}
 				</p>
+				{dados.versoes_com_texto >= 2 && (
+					<p>
+						<Link to={`/proposicoes/${dados.id}/texto`} viewTransition>
+							Ver como o texto mudou entre as versões
+						</Link>
+					</p>
+				)}
 			</header>
+
+			<section className="secao" aria-labelledby="ficha">
+				<h2 id="ficha">Ficha do projeto</h2>
+				<Ficha projeto={dados} />
+			</section>
+
+			{dados.caminho && (
+				<section className="secao" aria-labelledby="caminho">
+					<h2 id="caminho">Onde o projeto está</h2>
+					<p className="detalhe">
+						Caminho que este tipo de projeto percorre até virar norma.
+					</p>
+					<Caminho caminho={dados.caminho} situacao={dados.situacao} />
+				</section>
+			)}
 
 			<section className="secao" aria-labelledby="autoria">
 				<h2 id="autoria">Autoria</h2>
@@ -140,14 +165,15 @@ export function Proposicao() {
 				<p className="detalhe">
 					{plural(dados.votacoes.length, "votação", "votações")}, das quais{" "}
 					{plural(nominais.length, "teve", "tiveram")} voto registrado por
-					deputado. Requerimentos e destaques também são votados e aparecem
-					aqui.
+					deputado. Cada votação está marcada pelo que decidia: o texto do
+					projeto, um trecho dele ou uma questão de procedimento.
 				</p>
 
 				<ol className="linha-do-tempo">
 					{dados.votacoes.map((votacao) => (
 						<li key={votacao.id}>
 							<p className="linha-do-tempo-data">
+								<Natureza natureza={votacao.natureza} />
 								{data(votacao.data)}
 								{resultado(votacao.aprovacao) && (
 									<span
